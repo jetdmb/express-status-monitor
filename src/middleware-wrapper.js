@@ -39,7 +39,7 @@ const middlewareWrapper = config => {
     const startTime = process.hrtime();
 
     if (req.path === validatedConfig.path) {
-      healthChecker(validatedConfig.healthChecks).then(results => {
+      /* healthChecker(validatedConfig.healthChecks).then(results => {
         data.healthCheckResults = results;
         if (validatedConfig.iframe) {
           if (res.removeHeader) {
@@ -52,7 +52,8 @@ const middlewareWrapper = config => {
         }
 
         res.send(render(data));
-      });
+      }); */
+      next();
     } else {
       if (!req.path.startsWith(validatedConfig.ignoreStartsWith)) {
         onHeaders(res, () => {
@@ -74,14 +75,15 @@ const middlewareWrapper = config => {
    * ```
    * discussion: https://github.com/RafalWilinski/express-status-monitor/issues/63
    */
-  middleware.middleware = middleware;
-  middleware.pageRoute = (req, res) => {
+  const result = {}
+  result.middleware = middleware;
+  result.pageRoute = (req, res) => {
     healthChecker(validatedConfig.healthChecks).then(results => {
       data.healthCheckResults = results;
       res.send(render(data));
     });
   };
-  return middleware;
+  return result;
 };
 
 module.exports = middlewareWrapper;
